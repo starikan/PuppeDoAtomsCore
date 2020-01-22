@@ -1,0 +1,27 @@
+{
+  "name": "@puppedo/atoms-core",
+  "version": "1.0.0",
+  "description": "Core for PuppeDo atoms",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No test specified\""
+  },
+  "keywords": [
+    "puppeteer",
+    "puppedo",
+    "testing",
+    "tests",
+    "e2e",
+    "automatization"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/starikan/PuppeDoAtomsCore.git"
+  },
+  "author": "Starodubov Sergey <4analit@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/starikan/PuppeDoAtomsCore/issues"
+  },
+  "homepage": "https://github.com/starikan/PuppeDoAtomsCore#readme"
+}
