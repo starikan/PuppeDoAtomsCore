@@ -54,8 +54,8 @@ class Atom {
       this.screenshot = (this.options || {})['screenshot'] || false;
       this.fullpage = (this.options || {})['fullpage'] || false;
       this.level = (this.options || {})['level'] || 'raw';
-      this.log = function(customLog) {
-        args.log({
+      this.log = async function(customLog) {
+        await args.log({
           ...{
             screenshot: this.screenshot,
             fullpage: this.fullpage,
@@ -68,7 +68,7 @@ class Atom {
 
       const result = await this.atomRun();
 
-      const timer = (this.envs.args || {})['PPD_LOG_TIMER'] || false;
+      const timer = (this.envs.args || {})['PPD_LOG_EXTEND'] || false;
       if (timer) {
         console.log(`${' '.repeat(21)}${' | '.repeat(this.levelIndent + 1)} ⌛: ${new Date() - startTime} ms.`);
       }
