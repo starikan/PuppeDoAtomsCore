@@ -51,6 +51,10 @@ class Atom {
       this.description = args.description;
       this.socket = args.socket;
 
+      this.bindResults = args.bindResults;
+      this.bindSelectors = args.bindSelectors;
+      this.bindData = args.bindData;
+
       this.screenshot = (this.options || {})['screenshot'] || false;
       this.fullpage = (this.options || {})['fullpage'] || false;
       this.level = (this.options || {})['level'] || 'raw';
@@ -68,17 +72,46 @@ class Atom {
 
       const result = await this.atomRun();
 
-      const timer = (this.envs.args || {})['PPD_LOG_EXTEND'] || false;
-      if (timer) {
+      const PPD_LOG_EXTEND = (this.envs.args || {})['PPD_LOG_EXTEND'] || false;
+      if (PPD_LOG_EXTEND) {
         await this.log({
           text: `⌛: ${new Date() - startTime} ms.`,
           level: 'timer',
           levelIndent: this.levelIndent + 1,
           extendInfo: true,
         });
+        if (this.bindResults && Object.keys(this.bindResults).length) {
+          await this.log({
+            text: `↩️ (bR): ${JSON.stringify(this.bindResults)}`,
+            levelIndent: this.levelIndent + 1,
+            level: 'info',
+            extendInfo: true,
+          });
+        }
+        if (this.bindSelectors && Object.keys(this.bindSelectors).length) {
+          await this.log({
+            text: `📌☸️ (bS): ${JSON.stringify(this.bindSelectors)}`,
+            levelIndent: this.levelIndent + 1,
+            level: 'info',
+            extendInfo: true,
+          });
+        }
+        if (this.bindData && Object.keys(this.bindData).length) {
+          await this.log({
+            text: `📌📋 (bD): ${JSON.stringify(this.bindData)}`,
+            levelIndent: this.levelIndent + 1,
+            level: 'info',
+            extendInfo: true,
+          });
+        }
       }
       return result;
     } catch (error) {
+      await this.log({
+        text: `Error in Atom: ${error.message}\n${error.stack}`,
+        levelIndent: this.levelIndent + 1,
+        level: 'error',
+      });
       throw { message: `Error in Atom` };
     }
   }
