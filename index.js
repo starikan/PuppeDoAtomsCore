@@ -70,9 +70,13 @@ class Atom {
 
       const timer = (this.envs.args || {})['PPD_LOG_EXTEND'] || false;
       if (timer) {
-        console.log(`${' '.repeat(21)}${' | '.repeat(this.levelIndent + 1)} ⌛: ${new Date() - startTime} ms.`);
+        await this.log({
+          text: `⌛: ${new Date() - startTime} ms.`,
+          level: 'timer',
+          levelIndent: this.levelIndent + 1,
+          extendInfo: true,
+        });
       }
-
       return result;
     } catch (error) {
       throw { message: `Error in Atom` };
