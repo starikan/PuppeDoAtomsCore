@@ -32,7 +32,7 @@ class Atom {
     if (PPD_LOG_EXTEND || isError) {
       await this.log({
         text: `⌛: ${new Date() - startTime} ms.`,
-        level: 'timer',
+        level: isError ? 'error' : 'timer',
         levelIndent: this.levelIndent + 1,
         extendInfo: true,
       });
@@ -40,7 +40,7 @@ class Atom {
         await this.log({
           text: `↩️ (bR): ${JSON.stringify(this.bindResults)}`,
           levelIndent: this.levelIndent + 1,
-          level: 'info',
+          level: isError ? 'error' : 'info',
           extendInfo: true,
         });
       }
@@ -48,7 +48,7 @@ class Atom {
         await this.log({
           text: `📌☸️ (bS): ${JSON.stringify(this.bindSelectors)}`,
           levelIndent: this.levelIndent + 1,
-          level: 'info',
+          level: isError ? 'error' : 'info',
           extendInfo: true,
         });
       }
@@ -56,7 +56,7 @@ class Atom {
         await this.log({
           text: `📌📋 (bD): ${JSON.stringify(this.bindData)}`,
           levelIndent: this.levelIndent + 1,
-          level: 'info',
+          level: isError ? 'error' : 'info',
           extendInfo: true,
         });
       }
@@ -110,13 +110,31 @@ class Atom {
       await this.logExtend(startTime);
       return result;
     } catch (error) {
+      await this.log({
+        text: '='.repeat(120 - (this.levelIndent + 1) * 3 - 21),
+        levelIndent: this.levelIndent + 1,
+        level: 'error',
+        extendInfo: true,
+      });
+
       await this.logExtend(startTime, true);
 
       const errorStrings = ['Error in Atom:', error.message, ...error.stack.split('\n')];
+      for (let i = 0; i < errorStrings.length; i++) {
+        const errorText = errorStrings[i];
+        await this.log({
+          text: errorText,
+          levelIndent: this.levelIndent + 1,
+          level: 'error',
+          extendInfo: true,
+        });
+      }
+
       await this.log({
-        text: errorStrings.join('\n' + ' '.repeat(21) + ' | '.repeat(this.levelIndent + 1) + ' '),
+        text: '='.repeat(120 - (this.levelIndent + 1) * 3 - 21),
         levelIndent: this.levelIndent + 1,
         level: 'error',
+        extendInfo: true,
       });
 
       throw { message: `Error in Atom` };
