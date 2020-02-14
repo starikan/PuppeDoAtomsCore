@@ -36,27 +36,59 @@ class Atom {
         levelIndent: this.levelIndent + 1,
         extendInfo: true,
       });
-      if (this.bindResults && Object.keys(this.bindResults).length) {
+
+      const dataSources = [
+        ['📌📋 (bD):', this.bindData],
+        ['📋 (data):', this.dataTest],
+        ['☸️ (selectors):', this.selectorsTest],
+        ['📌☸️ (bS):', this.bindSelectors],
+        ['↩️ (bR):', this.bindResults],
+        ['⚙️ (options):', this.options],
+      ].filter(v => typeof v[1] === 'object' && Object.keys(v[1]).length);
+
+      for (let i = 0; i < dataSources.length; i++) {
+        const [text, object] = dataSources[i];
         await this.log({
-          text: `↩️ (bR): ${JSON.stringify(this.bindResults)}`,
+          text: `${text} ${JSON.stringify(object)}`,
           levelIndent: this.levelIndent + 1,
           level: isError ? 'error' : 'info',
           extendInfo: true,
         });
       }
-      if (this.bindSelectors && Object.keys(this.bindSelectors).length) {
+    }
+  }
+
+  async logDebug() {
+    if (this.data && Object.keys(this.data).length) {
+      const dataDebug = JSON.stringify(this.data, null, 2).split('\n');
+      await this.log({
+        text: '📋 (All Data):',
+        levelIndent: this.levelIndent + 1,
+        level: 'error',
+        extendInfo: true,
+      });
+      for (let i = 0; i < dataDebug.length; i++) {
         await this.log({
-          text: `📌☸️ (bS): ${JSON.stringify(this.bindSelectors)}`,
-          levelIndent: this.levelIndent + 1,
-          level: isError ? 'error' : 'info',
+          text: dataDebug[i],
+          levelIndent: this.levelIndent + 2,
+          level: 'error',
           extendInfo: true,
         });
       }
-      if (this.bindData && Object.keys(this.bindData).length) {
+    }
+    if (this.selectors && Object.keys(this.selectors).length) {
+      const selectorsDebug = JSON.stringify(this.selectors, null, 2).split('\n');
+      await this.log({
+        text: '☸️ (All Selectors):',
+        levelIndent: this.levelIndent + 1,
+        level: 'error',
+        extendInfo: true,
+      });
+      for (let i = 0; i < selectorsDebug.length; i++) {
         await this.log({
-          text: `📌📋 (bD): ${JSON.stringify(this.bindData)}`,
-          levelIndent: this.levelIndent + 1,
-          level: isError ? 'error' : 'info',
+          text: selectorsDebug[i],
+          levelIndent: this.levelIndent + 2,
+          level: 'error',
           extendInfo: true,
         });
       }
@@ -85,6 +117,9 @@ class Atom {
     this.name = args.name;
     this.description = args.description;
     this.socket = args.socket;
+
+    this.dataTest = args.dataTest;
+    this.selectorsTest = args.selectorsTest;
 
     this.bindResults = args.bindResults;
     this.bindSelectors = args.bindSelectors;
@@ -118,13 +153,19 @@ class Atom {
       });
 
       await this.logExtend(startTime, true);
+      await this.logDebug();
 
-      const errorStrings = ['Error in Atom:', error.message, ...error.stack.split('\n')];
+      const errorStrings = [error.message, ...error.stack.split('\n')];
+      await this.log({
+        text: 'Error in Atom:',
+        levelIndent: this.levelIndent + 1,
+        level: 'error',
+        extendInfo: true,
+      });
       for (let i = 0; i < errorStrings.length; i++) {
-        const errorText = errorStrings[i];
         await this.log({
-          text: errorText,
-          levelIndent: this.levelIndent + 1,
+          text: errorStrings[i],
+          levelIndent: this.levelIndent + 2,
           level: 'error',
           extendInfo: true,
         });
