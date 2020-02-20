@@ -95,6 +95,25 @@ class Atom {
     }
   }
 
+  async logArgs() {
+    const args = Object.entries(this.envs.args);
+    await this.log({
+      text: 'Arguments:',
+      levelIndent: this.levelIndent + 1,
+      level: 'error',
+      extendInfo: true,
+    });
+    for (let i = 0; i < args.length; i++) {
+      const [key, val] = args[i];
+      await this.log({
+        text: `${key}: ${JSON.stringify(val)}`,
+        levelIndent: this.levelIndent + 2,
+        level: 'error',
+        extendInfo: true,
+      });
+    }
+  }
+
   async runTest(args = {}) {
     const startTime = new Date();
 
@@ -154,6 +173,7 @@ class Atom {
 
       await this.logExtend(startTime, true);
       await this.logDebug();
+      await this.logArgs();
 
       const errorStrings = [error.message, ...error.stack.split('\n')];
       await this.log({
