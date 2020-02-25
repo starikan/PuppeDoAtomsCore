@@ -1,3 +1,10 @@
+class AtomError extends Error{
+  constructor(message){
+    super(message)
+    this.name = 'AtomError'
+  }
+}
+
 class Atom {
   constructor() {}
 
@@ -24,10 +31,37 @@ class Atom {
   }
 
   async atomRun() {
-    console.log('Empty Atom Run');
+      throw new AtomError('Empty Atom Run');
   }
 
-  async logExtend(startTime, isError = false) {
+  async logStack(error){
+    const errorStrings = [error.message, ...error.stack.split('\n')];
+    await this.log({
+      text: 'Error in Atom:',
+      levelIndent: this.levelIndent + 1,
+      level: 'error',
+      extendInfo: true,
+    });
+    for (let i = 0; i < errorStrings.length; i++) {
+      await this.log({
+        text: errorStrings[i],
+        levelIndent: this.levelIndent + 2,
+        level: 'error',
+        extendInfo: true,
+      });
+    }
+  }
+
+  async logSpliter() {
+    await this.log({
+      text: '='.repeat(120 - (this.levelIndent + 1) * 3 - 21),
+      levelIndent: this.levelIndent + 1,
+      level: 'error',
+      extendInfo: true,
+    });
+  }
+
+  async logTimer(startTime, isError = false) {
     const PPD_LOG_EXTEND = (this.envs.args || {})['PPD_LOG_EXTEND'] || false;
     if (PPD_LOG_EXTEND || isError) {
       await this.log({
@@ -36,7 +70,12 @@ class Atom {
         levelIndent: this.levelIndent + 1,
         extendInfo: true,
       });
+    }
+  }
 
+  async logExtend(isError = false) {
+    const PPD_LOG_EXTEND = (this.envs.args || {})['PPD_LOG_EXTEND'] || false;
+    if (PPD_LOG_EXTEND || isError) {
       const dataSources = [
         ['📌📋 (bD):', this.bindData],
         ['📋 (data):', this.dataTest],
@@ -161,44 +200,19 @@ class Atom {
 
     try {
       const result = await this.atomRun();
-      await this.logExtend(startTime);
+      await this.logTimer(startTime);
+      await this.logExtend();
       return result;
     } catch (error) {
-      await this.log({
-        text: '='.repeat(120 - (this.levelIndent + 1) * 3 - 21),
-        levelIndent: this.levelIndent + 1,
-        level: 'error',
-        extendInfo: true,
-      });
-
-      await this.logExtend(startTime, true);
+      await this.logSpliter()
+      await this.logTimer(startTime, true);
+      await this.logExtend(true);
       await this.logDebug();
       await this.logArgs();
+      await this.logStack(error)
+      await this.logSpliter()
 
-      const errorStrings = [error.message, ...error.stack.split('\n')];
-      await this.log({
-        text: 'Error in Atom:',
-        levelIndent: this.levelIndent + 1,
-        level: 'error',
-        extendInfo: true,
-      });
-      for (let i = 0; i < errorStrings.length; i++) {
-        await this.log({
-          text: errorStrings[i],
-          levelIndent: this.levelIndent + 2,
-          level: 'error',
-          extendInfo: true,
-        });
-      }
-
-      await this.log({
-        text: '='.repeat(120 - (this.levelIndent + 1) * 3 - 21),
-        levelIndent: this.levelIndent + 1,
-        level: 'error',
-        extendInfo: true,
-      });
-
-      throw { message: `Error in Atom` };
+      throw new AtomError('Error in Atom');
     }
   }
 }
