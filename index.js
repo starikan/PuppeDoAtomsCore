@@ -163,6 +163,8 @@ class Atom {
     this.data = args.data;
     this.selectors = args.selectors;
     this.options = args.options;
+    this.allowOptions = args.allowOptions;
+    this.bindOptions = args.bindOptions;
     this.allowResults = args.allowResults;
     this.bindResults = args.bindResults;
     this.levelIndent = args.levelIndent;
