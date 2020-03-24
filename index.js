@@ -37,6 +37,7 @@ class Atom {
   }
 
   async logStack(error) {
+    error.stack = error.stack || '';
     const errorStrings = [error.message, ...error.stack.split('\n')];
     await this.log({
       text: 'Error in Atom:',
