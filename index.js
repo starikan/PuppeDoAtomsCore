@@ -1,7 +1,9 @@
-class AtomError extends Error{
-  constructor(message){
-    super(message)
-    this.name = 'AtomError'
+const path = require('path');
+
+class AtomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'AtomError';
   }
 }
 
@@ -31,10 +33,10 @@ class Atom {
   }
 
   async atomRun() {
-      throw new AtomError('Empty Atom Run');
+    throw new AtomError('Empty Atom Run');
   }
 
-  async logStack(error){
+  async logStack(error) {
     const errorStrings = [error.message, ...error.stack.split('\n')];
     await this.log({
       text: 'Error in Atom:',
@@ -105,6 +107,7 @@ class Atom {
         levelIndent: this.levelIndent + 1,
         level: 'error',
         extendInfo: true,
+        stdOut: false,
       });
       for (let i = 0; i < dataDebug.length; i++) {
         await this.log({
@@ -112,6 +115,7 @@ class Atom {
           levelIndent: this.levelIndent + 2,
           level: 'error',
           extendInfo: true,
+          stdOut: false,
         });
       }
     }
@@ -122,6 +126,7 @@ class Atom {
         levelIndent: this.levelIndent + 1,
         level: 'error',
         extendInfo: true,
+        stdOut: false,
       });
       for (let i = 0; i < selectorsDebug.length; i++) {
         await this.log({
@@ -129,6 +134,7 @@ class Atom {
           levelIndent: this.levelIndent + 2,
           level: 'error',
           extendInfo: true,
+          stdOut: false,
         });
       }
     }
@@ -141,6 +147,7 @@ class Atom {
       levelIndent: this.levelIndent + 1,
       level: 'error',
       extendInfo: true,
+      stdOut: false,
     });
     for (let i = 0; i < args.length; i++) {
       const [key, val] = args[i];
@@ -149,6 +156,7 @@ class Atom {
         levelIndent: this.levelIndent + 2,
         level: 'error',
         extendInfo: true,
+        stdOut: false,
       });
     }
   }
@@ -204,13 +212,21 @@ class Atom {
       await this.logExtend();
       return result;
     } catch (error) {
-      await this.logSpliter()
+      const outputFile = path.join(this.envs.output.folderFull, 'output.log');
+      await this.log({
+        text: `Extend information you can reached in log file: \u001B[42mfile:///${outputFile}\u001B[0m`,
+        levelIndent: this.levelIndent + 1,
+        level: 'error',
+        extendInfo: true,
+      });
+
+      await this.logSpliter();
       await this.logTimer(startTime, true);
       await this.logExtend(true);
       await this.logDebug();
       await this.logArgs();
-      await this.logStack(error)
-      await this.logSpliter()
+      await this.logStack(error);
+      await this.logSpliter();
 
       throw new AtomError('Error in Atom');
     }
