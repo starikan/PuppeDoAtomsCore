@@ -180,7 +180,6 @@ class Atom {
     this.env = args.env;
     this.browser = args.browser;
     this.page = args.page;
-    this._ = args._;
     this.name = args.name;
     this.description = args.description;
     this.socket = args.socket;
