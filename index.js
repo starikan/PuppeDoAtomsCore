@@ -183,6 +183,7 @@ class Atom {
     this.name = args.name;
     this.description = args.description;
     this.socket = args.socket;
+    this.debug = args.debug;
 
     this.dataTest = args.dataTest;
     this.selectorsTest = args.selectorsTest;
