@@ -68,7 +68,7 @@ class Atom {
     const PPD_LOG_EXTEND = (this.envs.args || {})['PPD_LOG_EXTEND'] || false;
     if (PPD_LOG_EXTEND || isError) {
       await this.log({
-        text: `⌛: ${new Date() - startTime} ms.`,
+        text: `⌛: ${(Number(process.hrtime.bigint() - startTime) / 1e9).toFixed(3)} s.`,
         level: isError ? 'error' : 'timer',
         levelIndent: this.levelIndent + 1,
         extendInfo: true,
@@ -86,7 +86,7 @@ class Atom {
         ['📌☸️ (bS):', this.bindSelectors],
         ['↩️ (bR):', this.bindResults],
         ['⚙️ (options):', this.options],
-      ].filter(v => typeof v[1] === 'object' && Object.keys(v[1]).length);
+      ].filter((v) => typeof v[1] === 'object' && Object.keys(v[1]).length);
 
       for (let i = 0; i < dataSources.length; i++) {
         const [text, object] = dataSources[i];
@@ -163,7 +163,7 @@ class Atom {
   }
 
   async runTest(args = {}) {
-    const startTime = new Date();
+    const startTime = process.hrtime.bigint();
 
     this.envs = args.envs;
     this.envsId = args.envsId;
@@ -195,7 +195,7 @@ class Atom {
     this.screenshot = (this.options || {})['screenshot'] || false;
     this.fullpage = (this.options || {})['fullpage'] || false;
     this.level = (this.options || {})['level'] || 'raw';
-    this.log = async function(customLog) {
+    this.log = async function (customLog) {
       await args.log({
         ...{
           screenshot: this.screenshot,
