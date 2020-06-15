@@ -165,32 +165,11 @@ class Atom {
   async runTest(args = {}) {
     const startTime = process.hrtime.bigint();
 
-    this.envs = args.envs;
-    this.envsId = args.envsId;
-    this.envName = args.envName;
-    this.envPageName = args.envPageName;
-    this.data = args.data;
-    this.selectors = args.selectors;
-    this.options = args.options;
-    this.allowResults = args.allowResults;
-    this.bindResults = args.bindResults;
-    this.levelIndent = args.levelIndent;
-    this.repeat = args.repeat;
-    this.stepId = args.stepId;
-    this.env = args.env;
-    this.browser = args.browser;
-    this.page = args.page;
-    this.name = args.name;
-    this.description = args.description;
-    this.socket = args.socket;
-    this.debug = args.debug;
-
-    this.dataTest = args.dataTest;
-    this.selectorsTest = args.selectorsTest;
-
-    this.bindResults = args.bindResults;
-    this.bindSelectors = args.bindSelectors;
-    this.bindData = args.bindData;
+    for (const key in args) {
+      if (args.hasOwnProperty(key)) {
+        this[key] = args[key];
+      }
+    }
 
     this.screenshot = (this.options || {})['screenshot'] || false;
     this.fullpage = (this.options || {})['fullpage'] || false;
