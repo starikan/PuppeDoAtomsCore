@@ -171,17 +171,17 @@ class Atom {
       }
     }
 
-    this.screenshot = (this.options || {})['screenshot'] || false;
-    this.fullpage = (this.options || {})['fullpage'] || false;
-    this.level = (this.options || {})['level'] || 'raw';
+    const logOptionsDefault = {
+      screenshot: false,
+      fullpage: false,
+      level: 'raw',
+      levelIndent: this.levelIndent + 1,
+    }
+    const logOptions = {...logOptionsDefault, ...(this.options || {}), ...(this.logOptions || {}) }
+
     this.log = async function (customLog) {
       await args.log({
-        ...{
-          screenshot: this.screenshot,
-          fullpage: this.fullpage,
-          level: this.level,
-          levelIndent: this.levelIndent + 1,
-        },
+        ...logOptions,
         ...customLog,
       });
     };
