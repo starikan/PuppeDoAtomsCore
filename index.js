@@ -1,5 +1,7 @@
 const path = require('path');
 
+const enginesAvailable = ['puppeteer', 'playwright'];
+
 class AtomError extends Error {
   constructor(message) {
     super(message);
@@ -10,22 +12,45 @@ class AtomError extends Error {
 class Atom {
   constructor() {}
 
+  getEngine(engine) {
+    const atomEngine = this.env.env.browser.engine;
+
+    if (!enginesAvailable.includes(atomEngine)) {
+      throw new Error(`There is unknown engine: ${atomEngine}. Use this engines: ${enginesAvailable}`);
+    }
+
+    return engine ? atomEngine === engine : atomEngine;
+  }
+
   async getElement(page, selector, allElements = false) {
     if (page && selector && typeof selector === 'string' && typeof page === 'object') {
       let element;
-      if (selector.startsWith('xpath:')) {
-        selector = selector.replace(/^xpath:/, '');
-        element = await page.$x(selector);
-        if (!allElements) {
-          if (element.length > 1) {
-            throw { message: `Find more then 1 xpath elements ${selector}` };
-          }
+      const selectorClean = selector.replace(/^css:/, '').replace(/^xpath:/, '');
+
+      if (this.getEngine('puppeteer')) {
+        if (selector.startsWith('xpath:')) {
+          element = await page.$x(selectorClean);
+        } else {
+          element = allElements ? await page.$$(selectorClean) : await page.$(selectorClean);
+        }
+      }
+
+      if (this.getEngine('playwright')) {
+        element = await this.page.$$(selectorClean);
+      }
+
+      if (!allElements) {
+        if (Array.isArray(element) && element.length > 1) {
+          throw { message: `Find more then 1 xpath elements ${selector}` };
+        } else {
           element = element[0];
         }
       } else {
-        selector = selector.replace(/^css:/, '');
-        element = allElements ? await page.$$(selector) : await page.$(selector);
+        if (!Array.isArray(element)) {
+          element = [element];
+        }
       }
+
       return element;
     } else {
       return false;
@@ -176,8 +201,8 @@ class Atom {
       fullpage: false,
       level: 'raw',
       levelIndent: this.levelIndent + 1,
-    }
-    const logOptions = {...logOptionsDefault, ...(this.options || {}), ...(this.logOptions || {}) }
+    };
+    const logOptions = { ...logOptionsDefault, ...(this.options || {}), ...(this.logOptions || {}) };
 
     this.log = async function (customLog) {
       await args.log({
