@@ -22,16 +22,16 @@ class Atom {
     return engine ? atomEngine === engine : atomEngine;
   }
 
-  async getElement(page, selector, allElements = false) {
-    if (page && selector && typeof selector === 'string' && typeof page === 'object') {
+  async getElement(selector, allElements = false) {
+    if (selector && typeof selector === 'string') {
       let element;
       const selectorClean = selector.replace(/^css:/, '').replace(/^xpath:/, '');
 
       if (this.getEngine('puppeteer')) {
         if (selector.startsWith('xpath:')) {
-          element = await page.$x(selectorClean);
+          element = await this.page.$x(selectorClean);
         } else {
-          element = allElements ? await page.$$(selectorClean) : await page.$(selectorClean);
+          element = allElements ? await this.page.$$(selectorClean) : await this.page.$(selectorClean);
         }
       }
 
