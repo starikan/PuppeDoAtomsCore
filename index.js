@@ -24,31 +24,24 @@ class Atom {
 
   async getElement(selector, allElements = false) {
     if (selector && typeof selector === 'string') {
-      let element;
       const selectorClean = selector.replace(/^css:/, '').replace(/^xpath:/, '');
+      const isXPath = selector.startsWith('xpath:');
+      let element;
 
       if (this.getEngine('puppeteer')) {
-        if (selector.startsWith('xpath:')) {
-          element = await this.page.$x(selectorClean);
-        } else {
-          element = allElements ? await this.page.$$(selectorClean) : await this.page.$(selectorClean);
-        }
+        element = isXPath ? await page.$x(selectorClean) : await page.$$(selectorClean);
       }
 
       if (this.getEngine('playwright')) {
         element = await this.page.$$(selectorClean);
       }
 
+      if (!element || !element.length) {
+        throw new Error(`Can't find element on page: ${selectorClean}`);
+      }
+
       if (!allElements) {
-        if (Array.isArray(element) && element.length > 1) {
-          throw { message: `Find more then 1 xpath elements ${selector}` };
-        } else {
-          element = element[0];
-        }
-      } else {
-        if (!Array.isArray(element)) {
-          element = [element];
-        }
+        element = element[0];
       }
 
       return element;
