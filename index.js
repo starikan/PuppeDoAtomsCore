@@ -22,29 +22,51 @@ class Atom {
     return engine ? atomEngine === engine : atomEngine;
   }
 
-  async getElement(selector, allElements = false) {
+  async getElement(selector, allElements = false, elementPatent = null) {
+    if (!elementPatent) {
+      elementPatent = this.page;
+    }
+
     if (selector && typeof selector === 'string') {
-      const selectorClean = selector.replace(/^css:/, '').replace(/^xpath:/, '');
-      const isXPath = selector.startsWith('xpath:');
-      let element;
+      let selectorClean = selector
+        .replace(/^css[:=]/, '')
+        .replace(/^xpath[:=]/, '')
+        .replace(/^text[:=]/, '');
+      const isXPath = selector.match(/^xpath[:=]/);
+      const isText = selector.match(/^text[:=]/);
+      const isCSS = (!isXPath && !isText) || selector.match(/^css[:=]/);
+
+      let elements = [];
 
       if (this.getEngine('puppeteer')) {
-        element = isXPath ? await page.$x(selectorClean) : await page.$$(selectorClean);
+        if (isXPath) {
+          elements = await elementPatent.$x(selectorClean);
+        }
+        if (isText) {
+          elements = await elementPatent.$x(`//\*[text()[contains(.,"${selectorClean}")]]`);
+        }
+        if (isCSS) {
+          elements = await elementPatent.$$(selectorClean);
+        }
       }
 
       if (this.getEngine('playwright')) {
-        element = await this.page.$$(selectorClean);
+        if (isXPath) {
+          elements = await elementPatent.$$(`xpath=${selectorClean}`);
+        }
+        if (isText) {
+          elements = await elementPatent.$$(`text=${selectorClean}`);
+        }
+        if (isCSS) {
+          elements = await elementPatent.$$(`css=${selectorClean}`);
+        }
       }
 
-      if (!element || !element.length) {
-        throw new Error(`Can't find element on page: ${selectorClean}`);
+      if (!allElements && elements.length) {
+        return elements[0];
       }
 
-      if (!allElements) {
-        element = element[0];
-      }
-
-      return element;
+      return elements;
     } else {
       return false;
     }
