@@ -253,6 +253,11 @@ class Atom {
         level: 'error',
         extendInfo: true,
       });
+      await this.log({
+        text: error.message,
+        levelIndent: this.levelIndent + 1,
+        level: 'error',
+      });
 
       await this.logSpliter();
       await this.logTimer(startTime, true);
