@@ -202,6 +202,19 @@ class Atom {
     }
   }
 
+  async updateFrame() {
+    if (!this.frame) {
+      return;
+    }
+
+    const elementHandle = await this.page.$(`iframe[name="${this.frame}"]`);
+    const frame = await elementHandle.contentFrame();
+
+    if (frame) {
+      this.page = frame;
+    }
+  }
+
   async runTest(args = {}) {
     const startTime = process.hrtime.bigint();
 
@@ -227,6 +240,7 @@ class Atom {
     };
 
     try {
+      await this.updateFrame();
       const result = await this.atomRun();
       await this.logTimer(startTime);
       await this.logExtend();
